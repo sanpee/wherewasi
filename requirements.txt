@@ -1,0 +1,6 @@
+pytz
+tzlocal
+haversine
+# tkintermapview
+tkcalendar
+ply
