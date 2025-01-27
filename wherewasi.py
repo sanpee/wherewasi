@@ -1,10 +1,11 @@
 import tkinter as Tk
 import tkinter.ttk as Ttk
-# Pull from 
-from TkinterMapView.tkintermapview import TkinterMapView
 from tkinter import messagebox
+# Pull from https://github.com/sanpee/TkinterMapView.git
+from TkinterMapView.tkintermapview import TkinterMapView
 from haversine import inverse_haversine, Direction
 import configparser
+
 from googletimeline import googletimeline, Box, Position
 import query
 
@@ -154,6 +155,7 @@ class WhereAmI(Ttk.Frame):
           #self.mapWidget.fit_bounding_box(box.NorthWest, box.SouthEast)
    
   def onWinExit(self):
+    self.config.read(self.WHEREWASI_INI)
     self.config['DEFAULT']['geometry'] = self.master.winfo_geometry()
     with open(self.WHEREWASI_INI, 'w') as configfile:
       self.config.write(configfile) 
