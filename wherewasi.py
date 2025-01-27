@@ -25,7 +25,7 @@ class WhereAmI(Ttk.Frame):
       self.master.destroy()
       messagebox.showerror('Error', f'Unable to start due to {e}')
     else:
-      # Start the GUI if no error found
+      # Starts the GUI if only no error was found
       self.initUI()
       
   def initUI(self):
@@ -40,7 +40,7 @@ class WhereAmI(Ttk.Frame):
     searchPanel.pack(side=Tk.TOP, fill=Tk.BOTH)
     
     self.predefinedLocation = Tk.StringVar() 
-    predefinedLocations =  Ttk.OptionMenu(searchPanel, self.predefinedLocation, *self.locations, command=self.searchLocation)
+    predefinedLocations =  Ttk.OptionMenu(searchPanel, self.predefinedLocation, *self.locations, command=self.usePredefinedLocation)
     predefinedLocations.pack(side=Tk.LEFT, padx=5, pady=5)   
     
     searchButton = Ttk.Button(searchPanel, text = 'Search', command=self.searchLocation)
@@ -51,18 +51,16 @@ class WhereAmI(Ttk.Frame):
         
     locationEntry = Tk.Entry(searchPanel, width=1000, textvariable=self.SearchTextVar)
     locationEntry.pack(side=Tk.LEFT, padx=5, pady=5, fill=Tk.BOTH, expand=True)  
-    
         
-    self.searchResult = Ttk.Treeview(self, columns=("Date Time", "Type", "Distance"), show="headings")
-    self.searchResult.column(1, width=50, stretch=True)
-    self.searchResult.column(2, width=50, stretch=True)
+    self.searchResult = Ttk.Treeview(self, columns=("Date Time", "Type", "Distance(km)"), show="headings")
+    self.searchResult.column(1, width=50, stretch=True)  # Type
+    self.searchResult.column(2, width=100, stretch=True) # Distance(km)
     self.searchResult.bind('<ButtonRelease-1>', self.searchResultSelectItem)
     for col in self.searchResult['columns']:
       self.searchResult.heading(col, text=col, command=lambda _col=col: self.treeview_sort_column(self.searchResult, _col, False))
     
     vsb = Ttk.Scrollbar(self, orient="vertical", command=self.searchResult.yview)
     self.searchResult.configure(yscrollcommand=vsb.set)
-    
     vsb.pack(side=Tk.RIGHT, fill=Tk.Y)
     self.searchResult.pack(side=Tk.RIGHT, fill=Tk.Y)
     
@@ -95,6 +93,7 @@ class WhereAmI(Ttk.Frame):
     q.location_name = e
     q.position = self.locationNameToPosition(e)
     self.SearchTextVar.set(q.reform())
+    self.searchLocation()
   
   def searchLocation(self):
     self.searchResult.delete(*self.searchResult.get_children())
@@ -110,7 +109,6 @@ class WhereAmI(Ttk.Frame):
     self.config['DEFAULT']['lastsearch'] = searchText
     q = query.QueryParser(searchText)
     results = self.gtimeline.findLocation(q.position, q.distance, q.timefrom, q.timeto, q.days)
-    
     busy.stop()
     busy.destroy()
     
@@ -131,7 +129,11 @@ class WhereAmI(Ttk.Frame):
                                             inverse_haversine(q.position, q.distance, Direction.SOUTHEAST))
      
       for res in results:
-        self.searchResult.insert('', 'end', values=(res.time.strftime('%Y-%m-%d (%a) %H:%M:%S'), res.activity, res.distance, res.timelinepathid))
+        self.searchResult.insert('', 'end', values=(
+          res.time.strftime('%Y-%m-%d (%a) %H:%M:%S'), # Column #0
+          res.activity, 
+          '{d:.2f}'.format(d = res.distance), 
+          res.timelinepathid))
         self.zoomMapWidget.set_marker(res.position[0], res.position[1], marker_shape = 'diamond')
   
   def searchResultSelectItem(self, item):
