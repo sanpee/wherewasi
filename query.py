@@ -2,9 +2,17 @@ from datetime import time
 import ply.lex as lex
 
 class QueryParser:
+  '''
+  Location query:
+  @Name: Named location as stored in wherewasi.ini
+  (lattitude, longitude)
+  from H1:M1 to H2:M2 - to is optional but time format must be in 24H
+  whithin Xkm 
+  on weekday/weekend/mon,tue etc. Not working yet
+  '''
     
   def __init__(self, text):
-    self.position = (0,0)
+    self.location = (0,0)
     self.timefrom: time = None
     self.timeto: time = None
     self.distance = 0.5
@@ -12,7 +20,7 @@ class QueryParser:
     self.days = ''
     
     tokens = (
-      'POSITION',
+      'LOCATION',
       'TIMEFROM',
       'TIMETO',
       'DISTANCE',
@@ -39,7 +47,7 @@ class QueryParser:
       t.value = time(int(timetext[0]), int(timetext[1]))    
       return t
 
-    def t_POSITION(t):
+    def t_LOCATION(t):
       r'\(\s*[+-]?([0-9]*[.])?[0-9]+\s*\,\s*[+-]?([0-9]*[.])?[0-9]+\s*\)'
       t1 = t.value.strip('()').split(',')
       t.value = (float(t1[0]), float(t1[1]))
@@ -63,11 +71,11 @@ class QueryParser:
     
     for tok in lexer:
       match tok.type: 
-        case 'POSITION': self.position = tok.value
+        case 'LOCATION': self.position = tok.value
+        case 'LOCATION_NAME': self.location_name = tok.value
         case 'TIMEFROM': self.timefrom = tok.value
         case 'TIMETO': self.timeto = tok.value
         case 'DISTANCE': self.distance = tok.value
-        case 'LOCATION_NAME': self.location_name = tok.value
         case 'ON': self.days = tok.value
   
   def __str__(self):
