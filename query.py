@@ -85,15 +85,15 @@ class QueryParser:
         self.timefrom.strftime("%H:%M"), 
         self.timeto.strftime("%H:%M"))
 
-    return '{0}{1}{2} within {3}km on {4}'.format(
+    return '{0}{1}{2} within {3}km'.format(
       '@' + self.location_name if len(self.location_name) > 0 else '',
-      self.position, 
-      ',' + timeText if len(timeText) > 0 else '',
+      f'{self.position} ''' if len(self.position) > 0 else '', 
+      timeText if len(timeText) > 0 else '',
       self.distance, 
       self.days) 
 
   def reform(self) -> str:
-    return self
+    return str(self)
 
 
 if __name__ == '__main__':
@@ -105,6 +105,7 @@ if __name__ == '__main__':
   test = '@hello_world (1.3155484,103.8976849) within 0.3km on weekdays'
   test = '@hello_world (1.3155484,103.8976849) within 0.3km on 2024-12-01'
   # test = '(1.3155484,103.8976849) within 0.4km'
+  test = '(1.4182134,103.8385464) from 17:00 to 19:00 within 0.2km'
   q = QueryParser(test)
   print(q.reform())
     
